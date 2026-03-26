@@ -114,7 +114,7 @@ async def health():
 @app.get("/")
 async def redirect_root(request: Request):
     """Handle root path."""
-    host = request.headers.get("host", "").split(":")[0]
+    host = request.headers.get("x-forwarded-host", request.headers.get("host", "")).split(":")[0]
     target = _mapping.get("/", SW3_HOME)
     target = _localise_url(target, host)
     return RedirectResponse(url=target, status_code=301)
@@ -123,7 +123,7 @@ async def redirect_root(request: Request):
 @app.api_route("/{path:path}", methods=["GET", "HEAD"])
 async def redirect(request: Request):
     """Handle all incoming requests with a 301 redirect."""
-    host = request.headers.get("host", "").split(":")[0]
+    host = request.headers.get("x-forwarded-host", request.headers.get("host", "")).split(":")[0]
     path = f"/{request.path_params['path']}" if request.path_params.get("path") else "/"
     query = str(request.query_params)
     full_path = f"{path}?{query}" if query else path
